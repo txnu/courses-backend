@@ -1,12 +1,12 @@
 const admin = require("firebase-admin");
 const multer = require("multer");
 
-const storage = multer.memoryStorage(); // You can change this to diskStorage if needed
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 exports.register = async (req, res) => {
   try {
-    const { name, username, email, password, role } = req.body;
+    const { name, username, email, password, role = "student" } = req.body;
 
     const validRoles = ["admin", "student", "instructor"];
     if (!validRoles.includes(role)) {
