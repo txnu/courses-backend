@@ -8,6 +8,13 @@ exports.register = async (req, res) => {
   try {
     const { name, username, email, password, role = "student" } = req.body;
 
+    if (!name || !username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields (name, username, email, password) are required.",
+      });
+    }
+
     const validRoles = ["admin", "student", "instructor"];
     if (!validRoles.includes(role)) {
       return res.status(400).json({

@@ -1,8 +1,6 @@
-// const firebase = require("firebase/app");
 const express = require("express");
 const app = express();
 const cors = require("cors");
-// require("firebase/database");
 
 var admin = require("firebase-admin");
 
@@ -10,8 +8,6 @@ var serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  // databaseURL:
-  //   "https://quiz-f0289-default-rtdb.asia-southeast1.firebasedatabase.app",
 });
 
 app.use(express.json());
