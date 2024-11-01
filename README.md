@@ -9,4 +9,8 @@ Step To Install
   - npm install
   - npm run dev
 
+NOTE:
+
+- Change file serviceAccountKey.json with your file
+
 Kedai Programmer © 2024
