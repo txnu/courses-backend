@@ -21,21 +21,25 @@ exports.create = async (req, res) => {
     const newCategoryNumber = lastCategoryNumber + 1;
     const newCategoryId = `Category${newCategoryNumber}`;
 
-    const feedbackRef = db.collection("feedbacks").doc(feedbackId);
-    const feedbackSnapshot = await feedbackRef.get();
-    if (!feedbackSnapshot.exists) {
-      console.log(`Feedback not found for ID: ${feedbackId}`);
-      return res.status(400).json({
-        status: false,
-        message: "Feedback Not Found",
-      });
+    let feedbackArray = [];
+    if (feedbackId) {
+      const feedbackRef = db.collection("feedbacks").doc(feedbackId);
+      const feedbackSnapshot = await feedbackRef.get();
+      if (!feedbackSnapshot.exists) {
+        console.log(`Feedback not found for ID: ${feedbackId}`);
+        return res.status(400).json({
+          status: false,
+          message: "Feedback Not Found",
+        });
+      }
+      feedbackArray.push(feedbackId);
     }
 
     await categoriesRef.doc(newCategoryId).set({
       categoryNumber: newCategoryNumber,
       categoryId: newCategoryId,
       category_name: category_name,
-      feedback: [feedbackId],
+      feedback: feedbackArray,
     });
 
     res.status(201).json({

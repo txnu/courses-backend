@@ -38,7 +38,7 @@ exports.register = async (req, res) => {
       const lastDoc = userSnapshot.docs[0];
       lastUserNumber = lastDoc.data().userNumber;
     }
-    const newUserNumber = lastUserNumber + 1;
+    const newUserNumber = lastUserNumber + 1; 
     const newUserId = `User${newUserNumber}`;
 
     await usersRef.doc(newUserId).set({
