@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 
 exports.create = async (req, res) => {
   try {
-    const { course_name, description, userId, categoryId } = req.body;
+    const { course_name, course, description, userId, categoryId } = req.body;
     const db = admin.firestore();
 
     const courseRef = db.collection("courses");
@@ -43,6 +43,7 @@ exports.create = async (req, res) => {
       courseNumber: newCourseNumber,
       courseId: newCourseId,
       course_name: course_name,
+      course: course,
       description: description,
       userId: userId,
       categoryId: categoryId,
@@ -93,7 +94,6 @@ exports.getCourses = async (req, res) => {
         ? categorySnapshot.data()
         : null;
 
-      // If category has feedbackIds, fetch each feedback by its ID
       if (
         categoryData &&
         categoryData.feedback &&
@@ -116,6 +116,7 @@ exports.getCourses = async (req, res) => {
       courses.push({
         id: doc.id,
         course_name: courseData.course_name,
+        course: courseData.course,
         description: courseData.description,
         user: userSnapshot.exists ? userSnapshot.data() : null,
         category: categoryData,
@@ -161,6 +162,8 @@ exports.getById = async (req, res) => {
     const courseResponse = {
       id: courseSnapshot.id,
       course_name: courseData.course_name,
+      course: courseData.course,
+
       description: courseData.description,
       user: userSnapshot.exists ? userSnapshot.data() : null,
       category: categorySnapshot.exists ? categorySnapshot.data() : null,
@@ -189,7 +192,7 @@ exports.update = async (req, res) => {
       });
     }
 
-    const { course_name, description, userId, categoryId } = req.body;
+    const { course_name, course, description, userId, categoryId } = req.body;
     const db = admin.firestore();
 
     const courseRef = db.collection("courses").doc(courseId);
@@ -205,22 +208,22 @@ exports.update = async (req, res) => {
     const existingCourse = courseSnapshot.data();
     const updateData = {};
 
-    // Update course_name if provided, otherwise keep existing value
     if (course_name !== undefined) {
       updateData.course_name =
         course_name !== null ? course_name : existingCourse.course_name;
     }
 
-    // Update description if provided, otherwise keep existing value
+    if (course !== undefined) {
+      updateData.course = course !== null ? course : existingCourse.course;
+    }
+
     if (description !== undefined) {
       updateData.description =
         description !== null ? description : existingCourse.description;
     }
 
-    // Check if userId is provided and valid
     if (userId !== undefined) {
       if (userId === null || userId.trim() === "") {
-        // If userId is null or empty, keep the existing userId
         updateData.userId = existingCourse.userId;
       } else {
         const usersRef = db.collection("users").doc(userId);
@@ -232,17 +235,14 @@ exports.update = async (req, res) => {
             message: "User Not Found",
           });
         }
-        updateData.userId = userId; // Valid userId found, set it
+        updateData.userId = userId;
       }
     } else {
-      // No userId provided, keep the existing userId
       updateData.userId = existingCourse.userId;
     }
 
-    // Check if categoryId is provided and valid
     if (categoryId !== undefined) {
       if (categoryId === null || categoryId.trim() === "") {
-        // If categoryId is null or empty, keep the existing categoryId
         updateData.categoryId = existingCourse.categoryId;
       } else {
         const categoryRef = db.collection("categories").doc(categoryId);
@@ -254,14 +254,12 @@ exports.update = async (req, res) => {
             message: "Category Not Found",
           });
         }
-        updateData.categoryId = categoryId; // Valid categoryId found, set it
+        updateData.categoryId = categoryId;
       }
     } else {
-      // No categoryId provided, keep the existing categoryId
       updateData.categoryId = existingCourse.categoryId;
     }
 
-    // Remove any undefined properties from updateData
     Object.keys(updateData).forEach(
       (key) => updateData[key] === undefined && delete updateData[key]
     );
@@ -302,9 +300,6 @@ exports.delete = async (req, res) => {
         message: "Course not found",
       });
     }
-
-    // Optionally, you could check for any associated feedback or other references here
-    // Before deleting, ensure that you are handling dependencies (e.g., feedback, categories)
 
     await courseRef.delete();
 
