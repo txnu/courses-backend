@@ -7,6 +7,8 @@ exports.create = async (req, res) => {
 
     const quizRef = db.collection("quizes");
 
+    const numerictotalMarks = parseFloat(totalMarks);
+
     const quizSnapshot = await quizRef
       .orderBy("quizNumber", "desc")
       .limit(1)
@@ -34,7 +36,7 @@ exports.create = async (req, res) => {
     await quizRef.doc(newQuizId).set({
       quizNumber: newQuizNumber,
       title: title,
-      totalMarks: totalMarks,
+      totalMarks: numerictotalMarks,
       courseId: courseId,
     });
 
@@ -146,13 +148,15 @@ exports.update = async (req, res) => {
       });
     }
 
+    const numerictotalMarks = parseFloat(totalMarks);
+
     const existingQuiz = quizSnapshot.data();
 
     const updatedData = {
       courseId: courseId !== undefined ? courseId : existingQuiz.courseId,
       title: title !== undefined ? title : existingQuiz.title,
       totalMarks:
-        totalMarks !== undefined ? totalMarks : existingQuiz.totalMarks,
+        numerictotalMarks !== undefined ? totalMarks : existingQuiz.totalMarks,
     };
 
     await quizRef.update(updatedData);

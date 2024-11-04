@@ -80,11 +80,9 @@ exports.getCourses = async (req, res) => {
     for (const doc of coursesSnapshot.docs) {
       const courseData = doc.data();
 
-      // Fetch user data
       const userRef = db.collection("users").doc(courseData.userId);
       const userSnapshot = await userRef.get();
 
-      // Fetch category data
       const categoryRef = db
         .collection("categories")
         .doc(courseData.categoryId);
