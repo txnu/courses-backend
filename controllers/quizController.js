@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 
 exports.create = async (req, res) => {
   try {
-    const { courseId, title, totalMarks } = req.body;
+    const { courseId, title, quiz, totalMarks } = req.body;
     const db = admin.firestore();
 
     const quizRef = db.collection("quizes");
@@ -36,6 +36,7 @@ exports.create = async (req, res) => {
     await quizRef.doc(newQuizId).set({
       quizNumber: newQuizNumber,
       title: title,
+      quiz: quiz,
       totalMarks: numerictotalMarks,
       courseId: courseId,
     });
@@ -79,6 +80,7 @@ exports.getQuizzes = async (req, res) => {
         quizId: doc.id,
         course: courseSnapshot.exists ? courseSnapshot.data() : null,
         title: quizData.title,
+        quiz: quizData.quiz,
         totalMarks: quizData.totalMarks,
       });
     }
@@ -120,6 +122,7 @@ exports.getById = async (req, res) => {
       data: {
         quizId: quizSnapshot.id,
         title: quizData.title,
+        quiz: quizData.quiz,
         totalMarks: quizData.totalMarks,
         course: courseSnapshot.exists ? courseSnapshot.data() : null,
       },
@@ -136,7 +139,7 @@ exports.getById = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { quizId } = req.params;
-    const { courseId, title, totalMarks } = req.body;
+    const { courseId, title, quiz, totalMarks } = req.body;
     const db = admin.firestore();
     const quizRef = db.collection("quizes").doc(quizId);
     const quizSnapshot = await quizRef.get();
@@ -148,15 +151,16 @@ exports.update = async (req, res) => {
       });
     }
 
-    const numerictotalMarks = parseFloat(totalMarks);
+    parseFloat(totalMarks);
 
     const existingQuiz = quizSnapshot.data();
 
     const updatedData = {
       courseId: courseId !== undefined ? courseId : existingQuiz.courseId,
       title: title !== undefined ? title : existingQuiz.title,
+      quiz: quiz !== undefined ? quiz : existingQuiz.quiz,
       totalMarks:
-        numerictotalMarks !== undefined ? totalMarks : existingQuiz.totalMarks,
+        totalMarks !== undefined ? totalMarks : existingQuiz.totalMarks,
     };
 
     await quizRef.update(updatedData);
